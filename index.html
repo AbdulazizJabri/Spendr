@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Trip Spend">
+<meta name="theme-color" content="#EEF3F1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A1F1C" media="(prefers-color-scheme: dark)">
+<title>Trip Spend</title>
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAB5klEQVR42u3bMQ3CUBCAYdp0LjMbEnCAkaKgOCBMBAc4QAkOkMDGjAOGLoSw9h65930GXtL8Odpwr+nHYQG/tB4B4kAciANxIA7EgTgQB+JAHCAOxIE4EAfiQByIA3EgDsQB4kAciANxIA7EgTgQB+JAHCAOxIE4EAfiQByIA3EgDsSBOEAciANxIA7EgTgQB+JAHIgDxIE4EAfiQByIA3EgDsSBOEAciANxIA7EgTgQB+JAHIgDcYA4EAfiQByU0RU59XW5zn3Ecr+b9bj78xH80LbnY/I4ArKIsVmtgxO5HU7BiXSykEjhd46UZXwlEmlKJEMcuctI3EerDH34lOXP4qhnbKQcHiYHJeKobWzkGx4mB+JAHIgDcSAOqovjc6OiHpn2PEwOCsVR2/BIth5mclAujnqGR76t0ojJUUMfKfeNg35WcveRdRM9bsF46iPZX7W5LyhEX01Ik0gN91aafhy8luNTFnEgDsSBOBAH4kAciANxgDgQB+JAHIgDcSAOxIE4EAeIA3EgDsSBOBAH4kAciANxIA4QB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH4kAciANxIA4QB+JAHIgDcSAOxIE4EAfiQBwgDsSBOBAH4kAciANxIA7EAeJAHIgDcVDAG465VxtiXXpyAAAAAElFTkSuQmCC">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EEF3F1;
+    --surface: #FFFFFF;
+    --ink: #0F2A26;
+    --muted: #5E7A74;
+    --line: #D5E2DE;
+    --accent: #0E6B5C;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #CFE6DF;
+    --credit: #E3D5BC;
+    --danger: #B3261E;
+    --danger-soft: #F6DAD7;
+    --good: #1C7C3A;
+    --font: "Bricolage Grotesque", -apple-system, "SF Pro Rounded", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0A1F1C;
+      --surface: #12302B;
+      --ink: #E6F2EF;
+      --muted: #8FB0A8;
+      --line: #1F4640;
+      --accent: #5CC6B0;
+      --accent-ink: #06201B;
+      --accent-soft: #1B4A42;
+      --credit: #4A3F2C;
+      --danger: #F2867C;
+      --danger-soft: #3E1F1C;
+      --good: #7ED69A;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+  html, body { background: var(--bg); color: var(--ink); }
+  body {
+    font-family: var(--font);
+    font-optical-sizing: auto;
+    font-size: 17px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 100dvh;
+    padding-top: env(safe-area-inset-top);
+  }
+  button, input { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  .app { max-width: 480px; margin: 0 auto; padding: 16px 20px 140px; }
+
+  /* Top bar */
+  .top { display: flex; align-items: center; justify-content: space-between; min-height: 52px; }
+  .top h1 { font-size: 18px; font-weight: 650; letter-spacing: -0.01em; }
+  .top p { font-size: 14px; color: var(--muted); }
+  .icon-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 1px solid var(--line); background: var(--surface);
+    display: grid; place-items: center;
+  }
+  .icon-btn svg { width: 22px; height: 22px; }
+
+  /* Hero */
+  .hero { padding: 28px 0 8px; }
+  .hero-label { font-size: 15px; color: var(--muted); }
+  .balance {
+    font-size: clamp(52px, 16vw, 68px);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    margin-top: 6px;
+    font-variation-settings: "opsz" 96;
+  }
+  .balance .baisa { font-size: 0.5em; color: var(--muted); letter-spacing: -0.01em; }
+  .balance .cur { font-size: 0.3em; font-weight: 600; color: var(--muted); letter-spacing: 0; margin-left: 4px; }
+
+  .gauge {
+    position: relative; height: 22px; margin-top: 26px;
+    border-radius: 999px; overflow: hidden;
+    background: var(--accent-soft);
+  }
+  .gauge .zone {
+    position: absolute; inset: 0 auto 0 0;
+    background: repeating-linear-gradient(-45deg, var(--credit) 0 6px, transparent 6px 11px);
+  }
+  .gauge .seg {
+    position: absolute; top: 0; bottom: 0;
+    transition: left .5s cubic-bezier(.2,.8,.2,1), width .5s cubic-bezier(.2,.8,.2,1), background-color .3s;
+  }
+  .gauge .seg.borrowed { left: 0; background: color-mix(in srgb, var(--accent) 50%, var(--bg)); }
+  .gauge .seg.own { background: var(--accent); }
+  .gauge.in-credit .seg.borrowed { background: var(--danger); }
+  .gauge .mark { position: absolute; top: 0; bottom: 0; width: 3px; margin-left: -1.5px; background: var(--bg); }
+  .legend { position: relative; height: 22px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+  .legend span { position: absolute; top: 0; white-space: nowrap; }
+  .legend .l-credit { left: 0; }
+  .legend .l-own { right: 0; }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 22px; }
+  .stat-v { font-size: 26px; font-weight: 650; letter-spacing: -0.02em; }
+  .stat-l { font-size: 14px; color: var(--muted); }
+
+  .alert {
+    margin-top: 18px; padding: 14px 16px; border-radius: 14px;
+    background: var(--danger-soft); color: var(--danger); font-weight: 550;
+  }
+
+  /* Transactions */
+  .list-head { font-size: 18px; font-weight: 650; margin: 36px 0 4px; }
+  .list { list-style: none; padding: 0; }
+  .row {
+    width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 2px 12px;
+    text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line);
+    padding: 16px 4px; border-radius: 0;
+  }
+  .row:active { background: var(--accent-soft); }
+  .row .who { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .amt { font-weight: 650; text-align: right; }
+  .row .amt.in { color: var(--good); }
+  .row .when, .row .left { font-size: 14px; color: var(--muted); }
+  .row .left { text-align: right; }
+  .row.fresh { animation: fresh 1.6s ease-out; }
+  @keyframes fresh { from { background: var(--accent-soft); } to { background: transparent; } }
+  .empty { color: var(--muted); padding: 18px 0; max-width: 34ch; }
+
+  /* Buttons */
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; min-height: 62px; padding: 0 20px;
+    border: 0; border-radius: 18px;
+    font-size: 19px; font-weight: 650; letter-spacing: -0.005em;
+    background: var(--accent); color: var(--accent-ink);
+    transition: transform .12s, opacity .2s;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.4; }
+  .btn.quiet { background: var(--accent-soft); color: var(--ink); }
+  .btn.danger { background: transparent; color: var(--danger); min-height: 52px; }
+
+  .dock {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+    padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--bg) 70%, transparent);
+  }
+  .dock .btn { max-width: 440px; margin: 0 auto; box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 30%, transparent); }
+
+  /* Forms */
+  .field { display: block; margin-top: 22px; }
+  .field > span { display: block; font-weight: 600; margin-bottom: 8px; }
+  .field small { display: block; color: var(--muted); font-size: 14px; margin-top: 8px; }
+  .input {
+    width: 100%; min-height: 58px; padding: 0 16px;
+    border: 1.5px solid var(--line); border-radius: 16px;
+    background: var(--surface); font-size: 18px; outline: none;
+  }
+  .input:focus { border-color: var(--accent); }
+  .input.big {
+    min-height: 76px; font-size: 38px; font-weight: 650; letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .input::placeholder { color: var(--muted); opacity: 0.55; }
+
+  /* Setup */
+  .setup { padding-top: 40px; }
+  .setup h2 { font-size: 40px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; font-variation-settings: "opsz" 96; }
+  .setup .lede { color: var(--muted); margin-top: 12px; max-width: 36ch; }
+  .setup .btn { margin-top: 32px; }
+
+  /* Sheets: anchored to the top so the iPhone keyboard never covers them */
+  dialog {
+    border: 0; padding: 0; background: transparent; color: var(--ink);
+    width: calc(100% - 20px); max-width: 460px;
+    margin: calc(env(safe-area-inset-top) + 10px) auto auto;
+    max-height: calc(100dvh - 20px); overflow: visible;
+  }
+  dialog::backdrop { background: rgba(4, 20, 17, 0.5); }
+  .sheet {
+    background: var(--bg); border-radius: 28px; padding: 20px 20px 16px;
+    max-height: calc(100dvh - 30px); overflow-y: auto;
+  }
+  dialog[open] .sheet { animation: drop .32s cubic-bezier(.2,.8,.2,1); }
+  @keyframes drop { from { transform: translateY(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; }
+  .sheet-head h3 { font-size: 22px; font-weight: 700; letter-spacing: -0.015em; }
+  .link-btn { background: none; border: 0; color: var(--accent); font-weight: 600; padding: 10px 4px; }
+  .sheet .field:first-of-type { margin-top: 14px; }
+  .preview { min-height: 28px; margin: 12px 2px 0; font-size: 17px; color: var(--muted); }
+  .preview strong { color: var(--ink); font-weight: 650; }
+  .preview.in strong { color: var(--good); }
+  .sheet .btn { margin-top: 18px; }
+  .sheet .btn.danger { margin-top: 6px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Setup -->
+<main class="app" id="setupView" hidden>
+  <section class="setup">
+    <h2>Set up your trip</h2>
+    <p class="lede">Enter what your card shows right now. After that, you only type the new balance from each bank SMS.</p>
+    <form id="setupForm" novalidate>
+      <label class="field">
+        <span>Available balance (OMR)</span>
+        <input class="input big" id="setupStart" inputmode="decimal" autocomplete="off" placeholder="2000.000">
+        <small>Your top-up plus the bank's limit.</small>
+      </label>
+      <label class="field">
+        <span>Bank credit limit (OMR)</span>
+        <input class="input" id="setupLimit" inputmode="decimal" autocomplete="off" placeholder="1000.000">
+        <small>Anything below this is the bank's money. Leave empty to skip.</small>
+      </label>
+      <button class="btn" type="submit" id="setupBtn" disabled>Start tracking</button>
+    </form>
+  </section>
+</main>
+
+<!-- Main -->
+<main class="app" id="mainView" hidden>
+  <header class="top">
+    <div>
+      <h1>Trip spend</h1>
+      <p id="since"></p>
+    </div>
+    <button class="icon-btn" id="settingsBtn" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </header>
+
+  <section class="hero">
+    <p class="hero-label">Available on card</p>
+    <p class="balance num" id="balance"></p>
+
+    <div class="gauge" id="gauge" role="img">
+      <div class="zone" id="zone"></div>
+      <div class="seg borrowed" id="segBorrowed"></div>
+      <div class="seg own" id="segOwn"></div>
+      <div class="mark" id="mark"></div>
+    </div>
+    <div class="legend" id="legend">
+      <span class="l-credit">Bank credit</span>
+      <span class="l-own">Your money</span>
+    </div>
+
+    <div class="stats">
+      <div id="ownStat">
+        <p class="stat-v num" id="ownLeft"></p>
+        <p class="stat-l">Your money left</p>
+      </div>
+      <div>
+        <p class="stat-v num" id="spent"></p>
+        <p class="stat-l">Spent this trip</p>
+      </div>
+    </div>
+    <p class="alert" id="alert" hidden></p>
+  </section>
+
+  <h2 class="list-head">Transactions</h2>
+  <ul class="list" id="list"></ul>
+  <p class="empty" id="empty">No transactions yet. When a bank SMS arrives, tap Enter new balance and type the available amount it shows.</p>
+</main>
+
+<div class="dock" id="dock" hidden>
+  <button class="btn" id="addBtn">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    Enter new balance
+  </button>
+</div>
+
+<!-- Add / edit transaction -->
+<dialog id="txnSheet">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h3 id="txnTitle">New balance</h3>
+      <button class="link-btn" data-close>Cancel</button>
+    </div>
+    <label class="field">
+      <span>Available amount from the SMS</span>
+      <input class="input big" id="txnBal" inputmode="decimal" autocomplete="off">
+    </label>
+    <p class="preview num" id="txnPreview" aria-live="polite"></p>
+    <label class="field">
+      <span>Where? (optional)</span>
+      <input class="input" id="txnNote" autocomplete="off" placeholder="Bazaar, taxi, dinner">
+    </label>
+    <button class="btn" id="txnSave" disabled>Save transaction</button>
+    <button class="btn danger" id="txnDelete" hidden>Delete transaction</button>
+  </div>
+</dialog>
+
+<!-- Settings -->
+<dialog id="settingsSheet">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h3>Settings</h3>
+      <button class="link-btn" data-close>Cancel</button>
+    </div>
+    <label class="field">
+      <span>Starting balance (OMR)</span>
+      <input class="input" id="setStart" inputmode="decimal" autocomplete="off">
+    </label>
+    <label class="field">
+      <span>Bank credit limit (OMR)</span>
+      <input class="input" id="setLimit" inputmode="decimal" autocomplete="off" placeholder="0">
+    </label>
+    <button class="btn" id="setSave">Save changes</button>
+    <button class="btn danger" id="newTrip">Start a new trip</button>
+  </div>
+</dialog>
+
+<script>
+(() => {
+  const KEY = 'trip-spend.v1';
+  let memory = null; // fallback if storage is unavailable
+
+  const load = () => {
+    try { const raw = localStorage.getItem(KEY); return raw ? JSON.parse(raw) : null; }
+    catch (e) { return memory; }
+  };
+  const save = () => {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); }
+    catch (e) { memory = state; }
+  };
+
+  // All money is stored as whole baisa (1 OMR = 1000 baisa) to avoid rounding errors.
+  let state = load();
+
+  const $ = (id) => document.getElementById(id);
+
+  // Accepts "1998.180", "1,998.180", Arabic digits and the Arabic decimal mark.
+  function toBaisa(str) {
+    if (str == null) return null;
+    let s = String(str).trim()
+      .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+      .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+      .replace(/٫/g, '.').replace(/[٬\s]/g, '');
+    if (!s) return null;
+    if (s.includes('.')) s = s.replace(/,/g, '');
+    else if ((s.match(/,/g) || []).length === 1) s = s.replace(',', '.');
+    else s = s.replace(/,/g, '');
+    if (!/^\d*\.?\d*$/.test(s) || s === '.') return null;
+    const n = Number(s);
+    return Number.isFinite(n) && n >= 0 ? Math.round(n * 1000) : null;
+  }
+
+  const fmt = (b) => (b / 1000).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+  const plain = (b) => (b / 1000).toFixed(3);
+  const clamp = (x) => Math.max(0, Math.min(1, x));
+  const esc = (s) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const when = (t) => new Date(t).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+  const current = () => state.txns.length ? state.txns[state.txns.length - 1].bal : state.start;
+  const prevBalance = (index) => index === 0 ? state.start : state.txns[index - 1].bal;
+
+  /* ---------- Views ---------- */
+  function show() {
+    const ready = !!state;
+    $('setupView').hidden = ready;
+    $('mainView').hidden = !ready;
+    $('dock').hidden = !ready;
+    if (ready) render();
+  }
+
+  let freshId = null;
+
+  function render() {
+    const cur = current();
+    const { start, limit } = state;
+
+    $('since').textContent = 'Started ' + new Date(state.startedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+    const [whole, baisa] = fmt(cur).split('.');
+    $('balance').innerHTML = `${whole}<span class="baisa">.${baisa}</span><span class="cur">OMR</span>`;
+
+    // Gauge: left part is the bank's credit, right part is your own money.
+    const creditPct = limit > 0 ? clamp(limit / start) : 0;
+    const curPct = clamp(cur / start);
+    const borrowedW = Math.min(curPct, creditPct);
+    const ownW = Math.max(0, curPct - creditPct);
+    const inCredit = limit > 0 && cur < limit;
+
+    $('zone').style.width = (creditPct * 100) + '%';
+    $('segBorrowed').style.width = (borrowedW * 100) + '%';
+    $('segOwn').style.left = (creditPct * 100) + '%';
+    $('segOwn').style.width = (ownW * 100) + '%';
+    $('mark').style.left = (creditPct * 100) + '%';
+    $('mark').hidden = !(limit > 0 && limit < start);
+    $('gauge').classList.toggle('in-credit', inCredit);
+    $('gauge').setAttribute('aria-label', `${fmt(cur)} of ${fmt(start)} OMR available`);
+
+    const showCredit = limit > 0 && limit < start;
+    $('legend').hidden = !showCredit;
+    $('ownStat').hidden = !(limit > 0);
+    $('ownLeft').textContent = fmt(Math.max(0, cur - limit));
+
+    const spent = start - cur;
+    $('spent').textContent = (spent < 0 ? '+' : '') + fmt(Math.abs(spent));
+
+    $('alert').hidden = !inCredit;
+    if (inCredit) $('alert').textContent = `You're using ${fmt(limit - cur)} OMR of the bank's credit.`;
+
+    // List, newest first
+    const rows = state.txns.map((t, i) => ({ t, amount: prevBalance(i) - t.bal })).reverse();
+    $('empty').hidden = rows.length > 0;
+    $('list').innerHTML = rows.map(({ t, amount }) => {
+      const isIn = amount < 0;
+      const label = t.note ? esc(t.note) : (isIn ? 'Money in' : 'Card payment');
+      const amt = (isIn ? '+' : amount > 0 ? '−' : '') + fmt(Math.abs(amount));
+      return `<li><button class="row${t.id === freshId ? ' fresh' : ''}" data-id="${t.id}">
+        <span class="who">${label}</span>
+        <span class="amt num${isIn ? ' in' : ''}">${amt}</span>
+        <span class="when">${when(t.at)}</span>
+        <span class="left num">left ${fmt(t.bal)}</span>
+      </button></li>`;
+    }).join('');
+    freshId = null;
+  }
+
+  /* ---------- Setup ---------- */
+  const setupCheck = () => {
+    const s = toBaisa($('setupStart').value);
+    const l = $('setupLimit').value.trim() ? toBaisa($('setupLimit').value) : 0;
+    $('setupBtn').disabled = !(s > 0 && l !== null);
+  };
+  $('setupStart').addEventListener('input', setupCheck);
+  $('setupLimit').addEventListener('input', setupCheck);
+  $('setupForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const start = toBaisa($('setupStart').value);
+    const limit = $('setupLimit').value.trim() ? toBaisa($('setupLimit').value) : 0;
+    if (!(start > 0) || limit === null) return;
+    state = { start, limit, startedAt: Date.now(), txns: [] };
+    save();
+    show();
+  });
+
+  /* ---------- Add / edit ---------- */
+  const sheet = $('txnSheet');
+  let editingId = null;
+
+  function editingIndex() {
+    return editingId ? state.txns.findIndex(t => t.id === editingId) : state.txns.length;
+  }
+
+  function updatePreview() {
+    const b = toBaisa($('txnBal').value);
+    const p = $('txnPreview');
+    p.classList.remove('in');
+    if (b === null) {
+      p.textContent = $('txnBal').value.trim() ? 'Check the number, it should look like 1998.180' : '';
+      $('txnSave').disabled = true;
+      return;
+    }
+    const amount = prevBalance(editingIndex()) - b;
+    if (amount < 0) {
+      p.classList.add('in');
+      p.innerHTML = `Money in <strong>+${fmt(-amount)} OMR</strong>`;
+    } else {
+      p.innerHTML = `This transaction is <strong>${fmt(amount)} OMR</strong>`;
+    }
+    $('txnSave').disabled = false;
+  }
+
+  function openTxn(id) {
+    editingId = id || null;
+    const t = editingId ? state.txns.find(x => x.id === editingId) : null;
+    $('txnTitle').textContent = t ? 'Edit transaction' : 'New balance';
+    $('txnSave').textContent = t ? 'Save changes' : 'Save transaction';
+    $('txnDelete').hidden = !t;
+    $('txnBal').value = t ? plain(t.bal) : '';
+    $('txnBal').placeholder = plain(prevBalance(editingIndex()));
+    $('txnNote').value = t ? t.note : '';
+    updatePreview();
+    sheet.showModal();
+    $('txnBal').focus();
+  }
+
+  $('addBtn').addEventListener('click', () => openTxn());
+  $('list').addEventListener('click', (e) => {
+    const row = e.target.closest('.row');
+    if (row) openTxn(row.dataset.id);
+  });
+  $('txnBal').addEventListener('input', updatePreview);
+  $('txnBal').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('txnNote').focus(); });
+  $('txnNote').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !$('txnSave').disabled) $('txnSave').click(); });
+
+  $('txnSave').addEventListener('click', () => {
+    const bal = toBaisa($('txnBal').value);
+    if (bal === null) return;
+    const note = $('txnNote').value.trim();
+    if (editingId) {
+      const t = state.txns.find(x => x.id === editingId);
+      t.bal = bal; t.note = note;
+    } else {
+      const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      state.txns.push({ id, bal, note, at: Date.now() });
+      freshId = id;
+    }
+    save();
+    sheet.close();
+    render();
+  });
+
+  $('txnDelete').addEventListener('click', () => {
+    if (!editingId) return;
+    if (!confirm('Delete this transaction? Its amount will move into the next one.')) return;
+    state.txns = state.txns.filter(t => t.id !== editingId);
+    save();
+    sheet.close();
+    render();
+  });
+
+  /* ---------- Settings ---------- */
+  const settings = $('settingsSheet');
+  $('settingsBtn').addEventListener('click', () => {
+    $('setStart').value = plain(state.start);
+    $('setLimit').value = state.limit ? plain(state.limit) : '';
+    settings.showModal();
+  });
+  $('setSave').addEventListener('click', () => {
+    const start = toBaisa($('setStart').value);
+    const limit = $('setLimit').value.trim() ? toBaisa($('setLimit').value) : 0;
+    if (!(start > 0) || limit === null) { alert('Enter a starting balance above 0, like 2000.000'); return; }
+    state.start = start; state.limit = limit;
+    save();
+    settings.close();
+    render();
+  });
+  $('newTrip').addEventListener('click', () => {
+    if (!confirm('Start a new trip? This clears all transactions on this phone.')) return;
+    state = null;
+    try { localStorage.removeItem(KEY); } catch (e) { memory = null; }
+    settings.close();
+    $('setupStart').value = ''; $('setupLimit').value = '';
+    setupCheck();
+    show();
+  });
+
+  /* ---------- Sheet dismissal ---------- */
+  document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+  document.querySelectorAll('dialog').forEach(d => d.addEventListener('click', (e) => { if (e.target === d) d.close(); }));
+
+  show();
+})();
+</script>
+</body>
+</html>
