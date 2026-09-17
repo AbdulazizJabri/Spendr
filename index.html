@@ -5,46 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Trip Spend">
-<meta name="theme-color" content="#EEF3F1" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0A1F1C" media="(prefers-color-scheme: dark)">
-<title>Trip Spend</title>
-<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAB5klEQVR42u3bMQ3CUBCAYdp0LjMbEnCAkaKgOCBMBAc4QAkOkMDGjAOGLoSw9h65930GXtL8Odpwr+nHYQG/tB4B4kAciANxIA7EgTgQB+JAHCAOxIE4EAfiQByIA3EgDsQB4kAciANxIA7EgTgQB+JAHCAOxIE4EAfiQByIA3EgDsSBOEAciANxIA7EgTgQB+JAHIgDxIE4EAfiQByIA3EgDsSBOEAciANxIA7EgTgQB+JAHIgDcYA4EAfiQByU0RU59XW5zn3Ecr+b9bj78xH80LbnY/I4ArKIsVmtgxO5HU7BiXSykEjhd46UZXwlEmlKJEMcuctI3EerDH34lOXP4qhnbKQcHiYHJeKobWzkGx4mB+JAHIgDcSAOqovjc6OiHpn2PEwOCsVR2/BIth5mclAujnqGR76t0ojJUUMfKfeNg35WcveRdRM9bsF46iPZX7W5LyhEX01Ik0gN91aafhy8luNTFnEgDsSBOBAH4kAciANxgDgQB+JAHIgDcSAOxIE4EAeIA3EgDsSBOBAH4kAciANxIA4QB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH4kAciANxIA4QB+JAHIgDcSAOxIE4EAfiQBwgDsSBOBAH4kAciANxIA7EAeJAHIgDcVDAG465VxtiXXpyAAAAAElFTkSuQmCC">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Spendr">
+<meta name="theme-color" content="#1B1B2B">
+<title>Spendr</title>
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAB4klEQVR42u3bsQnCUBCAYSMZQngjaOM2NtnB0hEs3SGN29i4guAYFmlEbL0nd9+3wIPwcyZ4b2htu4Jv1h4B4kAciANxIA7EgTgQB+JAHCAOxIE4EAfiQByIA3EgDsQB4kAciANxIA7EgTgQB+JAHCAOxIE4EAfiQByIA3EgDsSBOEAciANxIA7EgTgQB+JAHIgDxIE4EAfiQByIA3EgDsSBOEAciANxIA7EgTgQB+JAHIgDcYA4EAfiQBz0MXY59Xi6//qIy3n30+Ou8xT80J6PW/I4ArKIcZjm4EQ2bR+cyCgLiXR+50hZxkcikZZEMsSRu4zEfayVoQ+fsvxZHHXGRsrhYXLQI45qYyPf8DA5EAfiQByIA3FQLo73jYo6Mu15mBx0iqPa8Ei2HmZy0C+OOsMj31ZpxOSo0EfKfeOgn5XcfWTdRI9bMF76SPZXbe4LCtFXE9IkUuHeytDa1ms5PmURB+JAHIgDcSAOxIE4EAeIA3EgDsSBOBAH4kAciANxgDgQB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH4kAciANxIA4QB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH4kAciANxIA7EAeJAHIgDcSAOxIE4EAfiQBwgDsSBOBAHHbwAUbZWM8zD0egAAAAASUVORK5CYII=">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #EEF3F1;
-    --surface: #FFFFFF;
-    --ink: #0F2A26;
-    --muted: #5E7A74;
-    --line: #D5E2DE;
-    --accent: #0E6B5C;
-    --accent-ink: #FFFFFF;
-    --accent-soft: #CFE6DF;
-    --credit: #E3D5BC;
-    --danger: #B3261E;
-    --danger-soft: #F6DAD7;
-    --good: #1C7C3A;
+    color-scheme: dark;
+    --bg: #1B1B2B;
+    --surface: #25273a;
+    --raised: #30304A;
+    --ink: #E2E2F2;
+    --muted: #8E8EB0;
+    --line: #535264;
+    --accent: #323552;
+    --accent-ink: #E2E2F2;
+    --accent-soft: #33365C;
+    --credit: #45406A;
+    --danger: #FF7F8E;
+    --danger-soft: #3D2335;
+    --good: #7ED8C4;
     --font: "Bricolage Grotesque", -apple-system, "SF Pro Rounded", system-ui, sans-serif;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0A1F1C;
-      --surface: #12302B;
-      --ink: #E6F2EF;
-      --muted: #8FB0A8;
-      --line: #1F4640;
-      --accent: #5CC6B0;
-      --accent-ink: #06201B;
-      --accent-soft: #1B4A42;
-      --credit: #4A3F2C;
-      --danger: #F2867C;
-      --danger-soft: #3E1F1C;
-      --good: #7ED69A;
-    }
   }
 
   * { box-sizing: border-box; margin: 0; }
@@ -95,7 +80,7 @@
   .gauge {
     position: relative; height: 22px; margin-top: 26px;
     border-radius: 999px; overflow: hidden;
-    background: var(--accent-soft);
+    background: var(--surface);
   }
   .gauge .zone {
     position: absolute; inset: 0 auto 0 0;
@@ -140,6 +125,18 @@
   .row.fresh { animation: fresh 1.6s ease-out; }
   @keyframes fresh { from { background: var(--accent-soft); } to { background: transparent; } }
   .empty { color: var(--muted); padding: 18px 0; max-width: 34ch; }
+  .row .orig { margin-left: 10px; }
+
+  .toast {
+    position: fixed; z-index: 20; left: 50%; top: calc(env(safe-area-inset-top) + 10px);
+    width: calc(100% - 20px); max-width: 460px; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 14px 14px 18px; border-radius: 20px;
+    background: var(--raised); color: var(--ink); font-weight: 550; box-shadow: 0 10px 30px rgba(0,0,0,.45);
+  }
+  .toast.show { animation: drop .32s cubic-bezier(.2,.8,.2,1); }
+  .toast p { flex: 1; }
+  .toast button { background: none; border: 0; color: var(--accent); font-weight: 700; padding: 8px 6px; }
 
   /* Buttons */
   .btn {
@@ -160,7 +157,7 @@
     padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
     background: linear-gradient(to top, var(--bg) 70%, transparent);
   }
-  .dock .btn { max-width: 440px; margin: 0 auto; box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 30%, transparent); }
+  .dock .btn { max-width: 440px; margin: 0 auto; box-shadow: 0 8px 28px color-mix(in srgb, var(--accent) 35%, transparent); }
 
   /* Forms */
   .field { display: block; margin-top: 22px; }
@@ -169,7 +166,7 @@
   .input {
     width: 100%; min-height: 58px; padding: 0 16px;
     border: 1.5px solid var(--line); border-radius: 16px;
-    background: var(--surface); font-size: 18px; outline: none;
+    background: var(--bg); font-size: 18px; outline: none;
   }
   .input:focus { border-color: var(--accent); }
   .input.big {
@@ -191,9 +188,9 @@
     margin: calc(env(safe-area-inset-top) + 10px) auto auto;
     max-height: calc(100dvh - 20px); overflow: visible;
   }
-  dialog::backdrop { background: rgba(4, 20, 17, 0.5); }
+  dialog::backdrop { background: rgba(8, 8, 18, 0.65); }
   .sheet {
-    background: var(--bg); border-radius: 28px; padding: 20px 20px 16px;
+    background: var(--surface); border-radius: 28px; padding: 20px 20px 16px;
     max-height: calc(100dvh - 30px); overflow-y: auto;
   }
   dialog[open] .sheet { animation: drop .32s cubic-bezier(.2,.8,.2,1); }
@@ -207,6 +204,25 @@
   .preview.in strong { color: var(--good); }
   .sheet .btn { margin-top: 18px; }
   .sheet .btn.danger { margin-top: 6px; }
+
+  /* Header actions and export */
+  .top-actions { display: flex; gap: 10px; }
+  .chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
+  .chip {
+    min-height: 44px; padding: 0 6px; border-radius: 999px; white-space: nowrap;
+    border: 1.5px solid var(--line); background: transparent;
+    color: var(--muted); font-weight: 600; font-size: 15px;
+  }
+  .chip[aria-pressed="true"] { border-color: var(--ink); color: var(--ink); background: var(--raised); }
+  .date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .sheet .date-row .field { margin-top: 18px; min-width: 0; }
+  .input.date {
+    -webkit-appearance: none; appearance: none;
+    display: flex; align-items: center; min-width: 0;
+    text-align: left; font-variant-numeric: tabular-nums; font-size: 17px; padding: 0 14px;
+  }
+  .input.date::-webkit-date-and-time-value { text-align: left; }
+  .input.date::-webkit-calendar-picker-indicator { filter: invert(0.8); }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -240,12 +256,17 @@
 <main class="app" id="mainView" hidden>
   <header class="top">
     <div>
-      <h1>Trip spend</h1>
+      <h1>Spendr</h1>
       <p id="since"></p>
     </div>
+    <div class="top-actions">
+    <button class="icon-btn" id="exportBtn" aria-label="Export">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>
+    </button>
     <button class="icon-btn" id="settingsBtn" aria-label="Settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
     </button>
+    </div>
   </header>
 
   <section class="hero">
@@ -288,6 +309,11 @@
   </button>
 </div>
 
+<div class="toast" id="toast" role="status" hidden>
+  <p id="toastMsg"></p>
+  <button id="toastUndo" hidden>Undo</button>
+</div>
+
 <!-- Add / edit transaction -->
 <dialog id="txnSheet">
   <div class="sheet">
@@ -301,11 +327,38 @@
     </label>
     <p class="preview num" id="txnPreview" aria-live="polite"></p>
     <label class="field">
-      <span>Where? (optional)</span>
-      <input class="input" id="txnNote" autocomplete="off" placeholder="Bazaar, taxi, dinner">
+      <span>Merchant (optional)</span>
+      <input class="input" id="txnNote" autocomplete="off" placeholder="e.g. Groceries, Food, Fuel">
     </label>
     <button class="btn" id="txnSave" disabled>Save transaction</button>
     <button class="btn danger" id="txnDelete" hidden>Delete transaction</button>
+  </div>
+</dialog>
+
+<!-- Export -->
+<dialog id="exportSheet">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h3>Export</h3>
+      <button class="link-btn" data-close>Cancel</button>
+    </div>
+    <div class="chips" role="group" aria-label="Quick date ranges">
+      <button class="chip" data-range="trip" aria-pressed="false">Whole trip</button>
+      <button class="chip" data-range="today" aria-pressed="false">Today</button>
+      <button class="chip" data-range="week" aria-pressed="false">Last 7 days</button>
+    </div>
+    <div class="date-row">
+      <label class="field">
+        <span>From</span>
+        <input class="input date" type="date" id="expFrom">
+      </label>
+      <label class="field">
+        <span>To</span>
+        <input class="input date" type="date" id="expTo">
+      </label>
+    </div>
+    <p class="preview num" id="expPreview" aria-live="polite"></p>
+    <button class="btn" id="expGo">Export spreadsheet</button>
   </div>
 </dialog>
 
@@ -379,7 +432,7 @@
     $('setupView').hidden = ready;
     $('mainView').hidden = !ready;
     $('dock').hidden = !ready;
-    if (ready) render();
+    if (ready) { render(); handleIncoming(); }
   }
 
   let freshId = null;
@@ -430,7 +483,7 @@
       return `<li><button class="row${t.id === freshId ? ' fresh' : ''}" data-id="${t.id}">
         <span class="who">${label}</span>
         <span class="amt num${isIn ? ' in' : ''}">${amt}</span>
-        <span class="when">${when(t.at)}</span>
+        <span class="when">${when(t.at)}${t.orig && t.orig.cur !== 'OMR' ? `<span class="orig">${esc(t.orig.value)} ${esc(t.orig.cur)}</span>` : ''}</span>
         <span class="left num">left ${fmt(t.bal)}</span>
       </button></li>`;
     }).join('');
@@ -458,6 +511,7 @@
   /* ---------- Add / edit ---------- */
   const sheet = $('txnSheet');
   let editingId = null;
+  let pastedSms = null;
 
   function editingIndex() {
     return editingId ? state.txns.findIndex(t => t.id === editingId) : state.txns.length;
@@ -484,6 +538,7 @@
 
   function openTxn(id) {
     editingId = id || null;
+    pastedSms = null;
     const t = editingId ? state.txns.find(x => x.id === editingId) : null;
     $('txnTitle').textContent = t ? 'Edit transaction' : 'New balance';
     $('txnSave').textContent = t ? 'Save changes' : 'Save transaction';
@@ -501,7 +556,19 @@
     const row = e.target.closest('.row');
     if (row) openTxn(row.dataset.id);
   });
-  $('txnBal').addEventListener('input', updatePreview);
+  // Pasting a whole bank SMS into the balance box fills in the balance and merchant.
+  $('txnBal').addEventListener('input', () => {
+    const v = $('txnBal').value;
+    if (/[A-Za-z\u0600-\u065F\u066D-\u06FF]/.test(v)) {
+      const p = parseSms(v);
+      if (p) {
+        $('txnBal').value = plain(p.bal);
+        if (!$('txnNote').value) $('txnNote').value = p.note;
+        pastedSms = p;
+      }
+    }
+    updatePreview();
+  });
   $('txnBal').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('txnNote').focus(); });
   $('txnNote').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !$('txnSave').disabled) $('txnSave').click(); });
 
@@ -514,7 +581,8 @@
       t.bal = bal; t.note = note;
     } else {
       const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-      state.txns.push({ id, bal, note, at: Date.now() });
+      const fromSms = pastedSms && pastedSms.bal === bal ? pastedSms : null;
+      state.txns.push({ id, bal, note, at: fromSms ? fromSms.at : Date.now(), orig: fromSms ? fromSms.orig : null, key: fromSms ? fromSms.key : null });
       freshId = id;
     }
     save();
@@ -555,6 +623,248 @@
     $('setupStart').value = ''; $('setupLimit').value = '';
     setupCheck();
     show();
+  });
+
+  /* ---------- Reading bank SMS ---------- */
+  // Example: "... مع BAZAAR 2   F3 01 بمبلغ 227.200 TRY  في 17-Sep في 11:32 AM  GMT +4. الحد المتاح للاستخدام الخاص بك هو OMR 1998.180."
+  const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+
+  function parseSms(raw) {
+    if (!raw) return null;
+    const text = String(raw)
+      .replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, '') // invisible direction marks
+      .replace(/\s+/g, ' ');
+
+    // The balance is the number that comes right AFTER "OMR".
+    // (The spent amount has "OMR" after the number, so it never matches.)
+    const balances = [...text.matchAll(/OMR\s*(\d[\d,]*(?:\.\d+)?)/g)];
+    if (!balances.length) return null;
+    const bal = toBaisa(balances[balances.length - 1][1]);
+    if (bal === null) return null;
+
+    const merchant = ((text.match(/مع\s+(.+?)\s+بمبلغ/) || [])[1] || '').trim();
+    const amount = text.match(/بمبلغ\s+(\d[\d,]*(?:\.\d+)?)\s+([A-Z]{3})/);
+    const dt = text.match(/(\d{1,2})-([A-Za-z]{3})\s+في\s+(\d{1,2}):(\d{2})\s*([AP]M)/i);
+    const gmt = text.match(/GMT\s*([+-])\s*(\d{1,2})/i);
+
+    let at = Date.now();
+    if (dt && MONTHS.includes(dt[2].toLowerCase())) {
+      const offset = gmt ? Number(gmt[2]) * (gmt[1] === '-' ? -1 : 1) : 4;
+      let hour = Number(dt[3]) % 12;
+      if (dt[5].toUpperCase() === 'PM') hour += 12;
+      const make = (year) => Date.UTC(year, MONTHS.indexOf(dt[2].toLowerCase()), Number(dt[1]), hour - offset, Number(dt[4]));
+      const year = new Date().getFullYear();
+      at = make(year);
+      if (at > Date.now() + 86400000) at = make(year - 1); // a December SMS read in January
+    }
+
+    return {
+      bal,
+      note: merchant,
+      orig: amount ? { value: amount[1], cur: amount[2] } : null,
+      at,
+      key: [bal, merchant, dt ? dt[0] : ''].join('|'),
+    };
+  }
+
+  // Opened from the Shortcut as .../?sms=<the whole message>
+  function handleIncoming() {
+    const params = new URLSearchParams(location.search);
+    if (!params.has('sms')) return;
+    if (!state) return; // keep it until the trip is set up
+    const sms = params.get('sms');
+    history.replaceState(null, '', location.pathname);
+
+    const p = parseSms(sms);
+    if (!p) { toast("Couldn't find the balance in that SMS. Enter it by hand."); return; }
+    if (state.txns.some(t => t.key && t.key === p.key)) { toast('That SMS is already in your list.'); return; }
+
+    const amount = current() - p.bal;
+    const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    state.txns.push({ id, bal: p.bal, note: p.note, at: p.at, orig: p.orig, key: p.key });
+    freshId = id;
+    save();
+    render();
+
+    const what = amount < 0 ? `Money in +${fmt(-amount)} OMR` : `${fmt(amount)} OMR`;
+    toast(`Added ${p.note || 'card payment'}: ${what}`, () => {
+      state.txns = state.txns.filter(t => t.id !== id);
+      save();
+      render();
+    });
+  }
+
+  let toastTimer;
+  function hideToast() { $('toast').hidden = true; }
+  function toast(message, undo) {
+    const el = $('toast');
+    $('toastMsg').textContent = message;
+    $('toastUndo').hidden = !undo;
+    $('toastUndo').onclick = () => { if (undo) undo(); hideToast(); };
+    el.hidden = false;
+    el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, 7000);
+  }
+
+  /* ---------- Export ---------- */
+  const exportSheet = $('exportSheet');
+
+  // The Excel library loads only when you open Export. Without internet it falls back to CSV.
+  const XLSX_URL = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  let xlsxLoading = null;
+  function loadXlsx() {
+    if (window.XLSX) return Promise.resolve(window.XLSX);
+    if (!xlsxLoading) {
+      xlsxLoading = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = XLSX_URL;
+        s.onload = () => resolve(window.XLSX);
+        s.onerror = () => { xlsxLoading = null; s.remove(); reject(new Error('offline')); };
+        document.head.appendChild(s);
+      });
+    }
+    return xlsxLoading;
+  }
+
+  const pad = (n) => String(n).padStart(2, '0');
+  const dayKey = (t) => { const d = new Date(t); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+  const dayStart = (key) => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d).getTime(); };
+  const nextDay = (key) => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d + 1).getTime(); };
+
+  function selectedRange() {
+    let from = $('expFrom').value, to = $('expTo').value;
+    if (!from || !to) return null;
+    if (from > to) [from, to] = [to, from];
+    const a = dayStart(from), b = nextDay(to);
+    const rows = state.txns
+      .map((t, i) => ({ t, amount: prevBalance(i) - t.bal }))
+      .filter(r => r.t.at >= a && r.t.at < b)
+      .sort((x, y) => x.t.at - y.t.at);
+    return { from, to, rows };
+  }
+
+  function setRange(kind) {
+    const today = dayKey(Date.now());
+    if (kind === 'trip') {
+      const times = state.txns.map(t => t.at).concat(state.startedAt);
+      $('expFrom').value = dayKey(Math.min(...times));
+      $('expTo').value = dayKey(Math.max(Date.now(), ...times));
+    } else if (kind === 'today') {
+      $('expFrom').value = today; $('expTo').value = today;
+    } else if (kind === 'week') {
+      const d = new Date(); d.setDate(d.getDate() - 6);
+      $('expFrom').value = dayKey(d); $('expTo').value = today;
+    }
+    markChip(kind);
+    updateExportPreview();
+  }
+
+  function markChip(kind) {
+    document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.range === kind)));
+  }
+
+  function updateExportPreview() {
+    const r = selectedRange();
+    const p = $('expPreview');
+    if (!r) { p.textContent = 'Pick both dates.'; $('expGo').disabled = true; return; }
+    if (!r.rows.length) { p.textContent = 'No transactions between these dates.'; $('expGo').disabled = true; return; }
+    const spent = r.rows.reduce((sum, x) => sum + Math.max(0, x.amount), 0);
+    p.innerHTML = `${r.rows.length} transaction${r.rows.length === 1 ? '' : 's'}, <strong>${fmt(spent)} OMR</strong> spent`;
+    $('expGo').disabled = false;
+  }
+
+  const HEADER = ['Date', 'Time', 'Merchant', 'Type', 'Original amount', 'Currency', 'Amount (OMR)', 'Rate (1 OMR =)', 'Balance after (OMR)'];
+
+  function buildRows({ from, to, rows }) {
+    const body = rows.map(({ t, amount }) => {
+      const d = new Date(t.at);
+      const isIn = amount < 0;
+      const origVal = t.orig ? Number(String(t.orig.value).replace(/,/g, '')) : null;
+      const cur = t.orig ? t.orig.cur : '';
+      const omr = amount / 1000;
+      const rate = origVal && cur && cur !== 'OMR' && amount > 0 ? origVal / omr : null;
+      return [
+        d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+        d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+        t.note || (isIn ? 'Money in' : 'Card payment'),
+        isIn ? 'Money in' : 'Payment',
+        origVal, cur || null, omr, rate, t.bal / 1000,
+      ];
+    });
+
+    const spent = rows.reduce((s, x) => s + Math.max(0, x.amount), 0) / 1000;
+    const moneyIn = rows.reduce((s, x) => s + Math.max(0, -x.amount), 0) / 1000;
+    const line = (label, value) => { const r = new Array(HEADER.length).fill(null); r[0] = label; r[6] = value; return r; };
+    const nice = (key) => new Date(dayStart(key)).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const period = line('Period', null); period[2] = `${nice(from)} to ${nice(to)}`;
+    const count = line('Transactions', null); count[2] = rows.length;
+    const summary = [line('Total spent', spent)];
+    if (moneyIn > 0) summary.push(line('Money in', moneyIn));
+    summary.push(count, period);
+    return { body, summary };
+  }
+
+  function makeXlsx(X, body, summary) {
+    const aoa = [HEADER, ...body, [], ...summary];
+    const ws = X.utils.aoa_to_sheet(aoa);
+    ws['!cols'] = [13, 7, 26, 10, 15, 9, 14, 15, 19].map(wch => ({ wch }));
+    const formats = { 4: '#,##0.000', 6: '#,##0.000', 7: '#,##0.00', 8: '#,##0.000' };
+    for (let r = 1; r < aoa.length; r++) {
+      for (const c of Object.keys(formats)) {
+        const cell = ws[X.utils.encode_cell({ r, c: Number(c) })];
+        if (cell && cell.t === 'n') cell.z = formats[c];
+      }
+    }
+    ws['!autofilter'] = { ref: X.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: body.length, c: HEADER.length - 1 } }) };
+    const wb = X.utils.book_new();
+    X.utils.book_append_sheet(wb, ws, 'Transactions');
+    const out = X.write(wb, { bookType: 'xlsx', type: 'array' });
+    return new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  }
+
+  function makeCsv(body, summary) {
+    const cell = (v) => v == null ? '' : typeof v === 'number' ? String(Math.round(v * 1000) / 1000) : `"${String(v).replace(/"/g, '""')}"`;
+    const lines = [HEADER, ...body, [], ...summary].map(r => r.map(cell).join(','));
+    return new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv' });
+  }
+
+  // On iPhone this opens the share sheet (Save to Files, Numbers, WhatsApp, Mail). Elsewhere it downloads.
+  async function deliver(blob, filename) {
+    const file = new File([blob], filename, { type: blob.type });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file] }); return true; }
+      catch (e) { if (e.name === 'AbortError') return false; }
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    return true;
+  }
+
+  $('exportBtn').addEventListener('click', () => {
+    loadXlsx().catch(() => {});
+    setRange('trip');
+    exportSheet.showModal();
+  });
+  document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => setRange(c.dataset.range)));
+  ['expFrom', 'expTo'].forEach(id => ['input', 'change'].forEach(ev =>
+    $(id).addEventListener(ev, () => { markChip(null); updateExportPreview(); })));
+
+  $('expGo').addEventListener('click', async () => {
+    const range = selectedRange();
+    if (!range || !range.rows.length) return;
+    const { body, summary } = buildRows(range);
+    const useXlsx = !!window.XLSX;
+    const blob = useXlsx ? makeXlsx(window.XLSX, body, summary) : makeCsv(body, summary);
+    const name = `Spendr ${range.from} to ${range.to}.${useXlsx ? 'xlsx' : 'csv'}`;
+    const done = await deliver(blob, name);
+    if (done) {
+      exportSheet.close();
+      toast(`Exported ${range.rows.length} transaction${range.rows.length === 1 ? '' : 's'}`);
+    }
   });
 
   /* ---------- Sheet dismissal ---------- */
