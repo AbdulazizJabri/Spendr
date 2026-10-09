@@ -16,7 +16,7 @@
 <style>
   :root {
     color-scheme: dark;
-    --bg: #1B1B2B;
+    --bg: #161822;
     --surface: #25273a;
     --raised: #30304A;
     --ink: #E2E2F2;
@@ -207,7 +207,7 @@
 
   /* Header actions and export */
   .top-actions { display: flex; gap: 10px; }
-  .chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
+  .chips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
   .chip {
     min-height: 44px; padding: 0 6px; border-radius: 999px; white-space: nowrap;
     border: 1.5px solid var(--line); background: transparent;
@@ -224,6 +224,17 @@
   .input.date::-webkit-date-and-time-value { text-align: left; }
   .input.date::-webkit-calendar-picker-indicator { filter: invert(0.8); }
 
+  /* Amount / balance switch in the add sheet */
+  .seg-toggle {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+    margin-top: 16px; padding: 4px; border-radius: 16px; background: var(--bg);
+  }
+  .seg-opt {
+    min-height: 46px; border: 0; border-radius: 12px; background: transparent;
+    color: var(--muted); font-weight: 600; font-size: 16px;
+  }
+  .seg-opt[aria-pressed="true"] { background: var(--raised); color: var(--ink); }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
@@ -234,8 +245,8 @@
 <!-- Setup -->
 <main class="app" id="setupView" hidden>
   <section class="setup">
-    <h2>Set up your trip</h2>
-    <p class="lede">Enter what your card shows right now. After that, you only type the new balance from each bank SMS.</p>
+    <h2>Set up your card</h2>
+    <p class="lede">Enter what your card shows right now. After that, just add each purchase: type the amount, or the new balance from the bank SMS.</p>
     <form id="setupForm" novalidate>
       <label class="field">
         <span>Available balance (OMR)</span>
@@ -291,7 +302,7 @@
       </div>
       <div>
         <p class="stat-v num" id="spent"></p>
-        <p class="stat-l">Spent this trip</p>
+        <p class="stat-l">Spent so far</p>
       </div>
     </div>
     <p class="alert" id="alert" hidden></p>
@@ -299,7 +310,7 @@
 
   <h2 class="list-head">Transactions</h2>
   <ul class="list" id="list"></ul>
-  <p class="empty" id="empty">No transactions yet. When a bank SMS arrives, tap Enter new balance and type the available amount it shows.</p>
+  <p class="empty" id="empty">No transactions yet. When a bank SMS arrives, tap Enter new balance, then type the amount or the available balance it shows.</p>
 </main>
 
 <div class="dock" id="dock" hidden>
@@ -318,11 +329,15 @@
 <dialog id="txnSheet">
   <div class="sheet">
     <div class="sheet-head">
-      <h3 id="txnTitle">New balance</h3>
+      <h3 id="txnTitle">New transaction</h3>
       <button class="link-btn" data-close>Cancel</button>
     </div>
+    <div class="seg-toggle" role="group" aria-label="What are you entering?">
+      <button type="button" class="seg-opt" data-mode="balance" aria-pressed="true">Balance</button>
+      <button type="button" class="seg-opt" data-mode="amount" aria-pressed="false">Amount spent</button>
+    </div>
     <label class="field">
-      <span>Available amount from the SMS</span>
+      <span id="txnLabel">Available amount from the SMS</span>
       <input class="input big" id="txnBal" inputmode="decimal" autocomplete="off">
     </label>
     <p class="preview num" id="txnPreview" aria-live="polite"></p>
@@ -343,9 +358,10 @@
       <button class="link-btn" data-close>Cancel</button>
     </div>
     <div class="chips" role="group" aria-label="Quick date ranges">
-      <button class="chip" data-range="trip" aria-pressed="false">Whole trip</button>
+      <button class="chip" data-range="all" aria-pressed="false">All</button>
+      <button class="chip" data-range="month" aria-pressed="false">This month</button>
       <button class="chip" data-range="today" aria-pressed="false">Today</button>
-      <button class="chip" data-range="week" aria-pressed="false">Last 7 days</button>
+      <button class="chip" data-range="week" aria-pressed="false">7 days</button>
     </div>
     <div class="date-row">
       <label class="field">
@@ -378,13 +394,13 @@
       <input class="input" id="setLimit" inputmode="decimal" autocomplete="off" placeholder="0">
     </label>
     <button class="btn" id="setSave">Save changes</button>
-    <button class="btn danger" id="newTrip">Start a new trip</button>
+    <button class="btn danger" id="newMonth">Start a new month</button>
   </div>
 </dialog>
 
 <script>
 (() => {
-  const KEY = 'trip-spend.v1';
+  const KEY = 'trip-spend.v1'; // name kept so data you already saved still loads
   let memory = null; // fallback if storage is unavailable
 
   const load = () => {
@@ -517,15 +533,50 @@
     return editingId ? state.txns.findIndex(t => t.id === editingId) : state.txns.length;
   }
 
+  // "balance" = the available balance from the SMS, "amount" = what the purchase cost.
+  // Either way the app stores the resulting balance, so everything else works the same.
+  const MODE_KEY = 'spendr.entry-mode';
+  let entryMode = 'balance';
+  const savedMode = () => { try { return localStorage.getItem(MODE_KEY) === 'amount' ? 'amount' : 'balance'; } catch (e) { return 'balance'; } };
+  const rememberMode = (m) => { try { localStorage.setItem(MODE_KEY, m); } catch (e) {} };
+
+  function applyMode(mode) {
+    entryMode = mode;
+    document.querySelectorAll('.seg-opt').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+    $('txnLabel').textContent = mode === 'amount' ? 'Amount spent (OMR)' : 'Available amount from the SMS';
+    $('txnBal').placeholder = mode === 'amount' ? '0.000' : plain(prevBalance(editingIndex()));
+  }
+
+  // The balance this entry would leave on the card, or null if the number isn't valid.
+  function enteredBalance() {
+    const v = toBaisa($('txnBal').value);
+    if (v === null) return null;
+    const bal = entryMode === 'amount' ? prevBalance(editingIndex()) - v : v;
+    return bal >= 0 ? bal : null;
+  }
+
   function updatePreview() {
-    const b = toBaisa($('txnBal').value);
+    const raw = $('txnBal').value;
+    const v = toBaisa(raw);
     const p = $('txnPreview');
     p.classList.remove('in');
-    if (b === null) {
-      p.textContent = $('txnBal').value.trim() ? 'Check the number, it should look like 1998.180' : '';
+    if (v === null) {
+      p.textContent = raw.trim() ? 'Check the number, it should look like ' + (entryMode === 'amount' ? '1.820' : '1998.180') : '';
       $('txnSave').disabled = true;
       return;
     }
+    if (entryMode === 'amount') {
+      const prev = prevBalance(editingIndex());
+      if (prev - v < 0) {
+        p.textContent = `That's more than the ${fmt(prev)} OMR available.`;
+        $('txnSave').disabled = true;
+        return;
+      }
+      p.innerHTML = `New balance <strong>${fmt(prev - v)} OMR</strong>`;
+      $('txnSave').disabled = false;
+      return;
+    }
+    const b = v;
     const amount = prevBalance(editingIndex()) - b;
     if (amount < 0) {
       p.classList.add('in');
@@ -540,11 +591,14 @@
     editingId = id || null;
     pastedSms = null;
     const t = editingId ? state.txns.find(x => x.id === editingId) : null;
-    $('txnTitle').textContent = t ? 'Edit transaction' : 'New balance';
+    $('txnTitle').textContent = t ? 'Edit transaction' : 'New transaction';
     $('txnSave').textContent = t ? 'Save changes' : 'Save transaction';
     $('txnDelete').hidden = !t;
-    $('txnBal').value = t ? plain(t.bal) : '';
-    $('txnBal').placeholder = plain(prevBalance(editingIndex()));
+    const prev = prevBalance(editingIndex());
+    let mode = savedMode();
+    if (t && mode === 'amount' && prev - t.bal < 0) mode = 'balance'; // money in can't be shown as an amount spent
+    applyMode(mode);
+    $('txnBal').value = t ? plain(mode === 'amount' ? prev - t.bal : t.bal) : '';
     $('txnNote').value = t ? t.note : '';
     updatePreview();
     sheet.showModal();
@@ -562,6 +616,7 @@
     if (/[A-Za-z\u0600-\u065F\u066D-\u06FF]/.test(v)) {
       const p = parseSms(v);
       if (p) {
+        applyMode('balance'); // a pasted SMS always gives the balance
         $('txnBal').value = plain(p.bal);
         if (!$('txnNote').value) $('txnNote').value = p.note;
         pastedSms = p;
@@ -569,11 +624,23 @@
     }
     updatePreview();
   });
+  document.querySelectorAll('.seg-opt').forEach(b => b.addEventListener('click', () => {
+    const mode = b.dataset.mode;
+    if (mode === entryMode) return;
+    // Keep the same transaction when switching: amount = previous balance - new balance, and back.
+    const v = toBaisa($('txnBal').value);
+    const other = v === null ? null : prevBalance(editingIndex()) - v;
+    applyMode(mode);
+    $('txnBal').value = other !== null && other >= 0 ? plain(other) : '';
+    rememberMode(mode);
+    updatePreview();
+    $('txnBal').focus();
+  }));
   $('txnBal').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('txnNote').focus(); });
   $('txnNote').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !$('txnSave').disabled) $('txnSave').click(); });
 
   $('txnSave').addEventListener('click', () => {
-    const bal = toBaisa($('txnBal').value);
+    const bal = enteredBalance();
     if (bal === null) return;
     const note = $('txnNote').value.trim();
     if (editingId) {
@@ -615,8 +682,8 @@
     settings.close();
     render();
   });
-  $('newTrip').addEventListener('click', () => {
-    if (!confirm('Start a new trip? This clears all transactions on this phone.')) return;
+  $('newMonth').addEventListener('click', () => {
+    if (!confirm('Start a new month? This clears all transactions on this phone. Export them first if you want a copy.')) return;
     state = null;
     try { localStorage.removeItem(KEY); } catch (e) { memory = null; }
     settings.close();
@@ -671,7 +738,7 @@
   function handleIncoming() {
     const params = new URLSearchParams(location.search);
     if (!params.has('sms')) return;
-    if (!state) return; // keep it until the trip is set up
+    if (!state) return; // keep it until the card is set up
     const sms = params.get('sms');
     history.replaceState(null, '', location.pathname);
 
@@ -746,10 +813,14 @@
 
   function setRange(kind) {
     const today = dayKey(Date.now());
-    if (kind === 'trip') {
+    if (kind === 'all') {
       const times = state.txns.map(t => t.at).concat(state.startedAt);
       $('expFrom').value = dayKey(Math.min(...times));
       $('expTo').value = dayKey(Math.max(Date.now(), ...times));
+    } else if (kind === 'month') {
+      const now = new Date();
+      $('expFrom').value = dayKey(new Date(now.getFullYear(), now.getMonth(), 1));
+      $('expTo').value = today;
     } else if (kind === 'today') {
       $('expFrom').value = today; $('expTo').value = today;
     } else if (kind === 'week') {
@@ -846,7 +917,7 @@
 
   $('exportBtn').addEventListener('click', () => {
     loadXlsx().catch(() => {});
-    setRange('trip');
+    setRange('all');
     exportSheet.showModal();
   });
   document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => setRange(c.dataset.range)));
