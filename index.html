@@ -38,6 +38,8 @@
   }
 
   * { box-sizing: border-box; margin: 0; }
+  /* Stop Safari's double-tap zoom everywhere. Scrolling and pinch zoom still work. */
+  *, *::before, *::after { touch-action: manipulation; }
   html, body { background: var(--bg); color: var(--ink); }
   body {
     font-family: var(--font);
@@ -407,6 +409,17 @@
   }
   .sheet .link-btn.inline { display: block; padding: 12px 2px 0; text-align: left; }
 
+  /* Swiping between months */
+  .app { overflow-x: clip; } /* keeps the slide from nudging the page sideways */
+  .slide-next { animation: slide-next .28s cubic-bezier(.2,.8,.2,1); }
+  .slide-prev { animation: slide-prev .28s cubic-bezier(.2,.8,.2,1); }
+  .bump-next { animation: bump-next .32s ease-out; }
+  .bump-prev { animation: bump-prev .32s ease-out; }
+  @keyframes slide-next { from { opacity: 0; transform: translateX(32px); } to { opacity: 1; transform: none; } }
+  @keyframes slide-prev { from { opacity: 0; transform: translateX(-32px); } to { opacity: 1; transform: none; } }
+  @keyframes bump-next { 0%, 100% { transform: none; } 35% { transform: translateX(-16px); } }
+  @keyframes bump-prev { 0%, 100% { transform: none; } 35% { transform: translateX(16px); } }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
@@ -453,7 +466,7 @@
   </header>
 
   <div class="tabs" role="tablist" aria-label="View">
-    <button class="tab" role="tab" data-tab="card" aria-selected="true">Card</button>
+    <button class="tab" role="tab" data-tab="card" aria-selected="true">Credit Card</button>
     <button class="tab" role="tab" data-tab="budget" aria-selected="false">Budget</button>
   </div>
 
@@ -1444,10 +1457,9 @@
     if (!keys.length) {
       body.innerHTML = `<section class="bempty">
         <h2>Your monthly budget</h2>
-        <p class="lede">Plan your income, expenses, bills, savings and debt each month. Card purchases are added for you.</p>
-        <button class="btn" data-act="import">Import from Google Sheets</button>
+        <p class="lede">Plan your income, expenses, bills, savings and debt each month.</p>
+        <button class="btn" data-act="import">Import from Excel Sheets</button>
         <button class="btn quiet" data-act="start">Start from scratch</button>
-        <p class="hint">To import: in Google Sheets, tap File, Download, Microsoft Excel (.xlsx). Every month tab comes across.</p>
       </section>`;
       return;
     }
@@ -1474,7 +1486,6 @@
     html.push(`<section class="bcard left-card${T.left.actual < 0 ? ' neg' : ''}">
       <p class="bh">Amount left to spend</p>
       <p class="balance num">${bigAmount(T.left.actual)}</p>
-      <p class="sub num">Planned ${fmtS(T.left.planned)}, spent ${fmt(T.spent.actual)} of ${fmt(T.spent.planned)}</p>
     </section>`);
 
     // Five summary tiles (Income, Expenses, Bills, Savings, Debt)
@@ -1566,6 +1577,47 @@
     window.scrollTo({ top: 0 });
   }
 
+  /* ---------- Budget: swipe between months ---------- */
+  // Swipe left for the next month, right for the previous one.
+  function goMonth(dir) {
+    const keys = sortedKeys(), i = keys.indexOf(viewMonth);
+    if (i < 0) return;
+    const body = $('budgetBody');
+    const next = keys[i + dir];
+    let cls;
+    if (next) {
+      viewMonth = next;
+      renderBudget();
+      cls = dir > 0 ? 'slide-next' : 'slide-prev';
+    } else {
+      cls = dir > 0 ? 'bump-next' : 'bump-prev'; // first or last month: a small bounce
+    }
+    body.classList.remove('slide-next', 'slide-prev', 'bump-next', 'bump-prev');
+    void body.offsetWidth; // restart the animation
+    body.classList.add(cls);
+  }
+  $('budgetBody').addEventListener('animationend', (e) => { if (e.target === e.currentTarget) e.currentTarget.className = ''; });
+
+  let swipe = null;
+  const EDGE = 24; // Safari uses swipes from the screen edge for back and forward
+  $('budgetView').addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    swipe = null;
+    if (e.touches.length !== 1 || e.target.closest('.tiles')) return; // the tiles scroll sideways themselves
+    if (t.clientX < EDGE || t.clientX > window.innerWidth - EDGE) return;
+    swipe = { x: t.clientX, y: t.clientY, at: Date.now() };
+  }, { passive: true });
+  $('budgetView').addEventListener('touchend', (e) => {
+    if (!swipe) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - swipe.x, dy = t.clientY - swipe.y, dt = Date.now() - swipe.at;
+    swipe = null;
+    // A clear sideways flick: far enough, mostly horizontal, and quick.
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5 || dt > 700) return;
+    goMonth(dx < 0 ? 1 : -1);
+  }, { passive: true });
+  $('budgetView').addEventListener('touchcancel', () => { swipe = null; }, { passive: true });
+
   $('budgetBody').addEventListener('click', (e) => {
     const el = e.target.closest('button');
     if (!el) return;
@@ -1576,10 +1628,10 @@
       const k = monthKey(new Date().getFullYear(), new Date().getMonth());
       return createMonth(k, null);
     }
-    if (act === 'prev') { viewMonth = keys[keys.indexOf(viewMonth) - 1] || viewMonth; return renderBudget(); }
+    if (act === 'prev') return goMonth(-1);
     if (act === 'next') {
       const i = keys.indexOf(viewMonth);
-      if (i < keys.length - 1) { viewMonth = keys[i + 1]; return renderBudget(); }
+      if (i < keys.length - 1) return goMonth(1);
       const nk = nextKey(viewMonth);
       if (confirm(`Create ${monthLabel(nk)}? Your categories and planned amounts are copied from ${monthLabel(viewMonth)}.`)) createMonth(nk, viewMonth);
       return;
