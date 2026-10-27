@@ -578,6 +578,22 @@
   </div>
 </dialog>
 
+<!-- Budget export -->
+<dialog id="budgetExportSheet">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h3>Export budget</h3>
+      <button class="link-btn" data-close>Cancel</button>
+    </div>
+    <label class="field">
+      <span>Month</span>
+      <select class="input select" id="bxMonth"></select>
+    </label>
+    <p class="preview num" id="bxPreview" aria-live="polite"></p>
+    <button class="btn" id="bxGo">Export spreadsheet</button>
+  </div>
+</dialog>
+
 <!-- Settings -->
 <dialog id="settingsSheet">
   <div class="sheet">
@@ -599,7 +615,6 @@
       <small>Change a purchase's category once and Spendr remembers it for that merchant.</small>
     </label>
     <button class="btn" id="setSave">Save changes</button>
-    <button class="btn quiet" id="setImport">Import from Google Sheets</button>
     <button class="btn danger" id="eraseCard">Erase card history</button>
   </div>
 </dialog>
@@ -666,8 +681,6 @@
     <button class="btn danger" id="mDelete">Delete this month</button>
   </div>
 </dialog>
-
-<input type="file" id="xlsxFile" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
 
 <script>
 (() => {
@@ -1266,6 +1279,7 @@
   }
 
   $('exportBtn').addEventListener('click', () => {
+    if (tab === 'budget') return openBudgetExport(); // Budget tab: back up a month. Card tab: the trip spreadsheet.
     loadXlsx().catch(() => {});
     setRange('all');
     exportSheet.showModal();
@@ -1406,6 +1420,9 @@
     $('cardView').hidden = name !== 'card';
     $('budgetView').hidden = name !== 'budget';
     $('dock').hidden = !state || name !== 'card';
+    const exp = name === 'budget' ? 'Export budget month' : 'Export card transactions';
+    $('exportBtn').setAttribute('aria-label', exp);
+    $('exportBtn').title = exp;
     if (name === 'budget') renderBudget();
   }
   document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
@@ -1458,8 +1475,7 @@
       body.innerHTML = `<section class="bempty">
         <h2>Your monthly budget</h2>
         <p class="lede">Plan your income, expenses, bills, savings and debt each month.</p>
-        <button class="btn" data-act="import">Import from Excel Sheets</button>
-        <button class="btn quiet" data-act="start">Start from scratch</button>
+        <button class="btn" data-act="start">Start from scratch</button>
       </section>`;
       return;
     }
@@ -1623,7 +1639,6 @@
     if (!el) return;
     const keys = sortedKeys();
     const act = el.dataset.act;
-    if (act === 'import') return startImport();
     if (act === 'start') {
       const k = monthKey(new Date().getFullYear(), new Date().getMonth());
       return createMonth(k, null);
@@ -1829,108 +1844,114 @@
     renderBudget();
   });
 
-  /* ---------- Budget: import from the Google Sheets dashboard (.xlsx) ---------- */
-  // Reads every tab named like "OCT 26" using the dashboard layout:
-  // Income B/E/I, Expenses K/M/O, Bills S/W/Y (paid box R), Savings AD/AG/AI rows 24-35,
-  // Debt AE/AG/AI rows 41-53 (paid box AD), period D7-H7, rollover E13/I13.
-  // A cell like "=3+5.3+2.8" becomes three separate amounts.
-  function parseWorkbook(X, buf) {
-    const wb = X.read(buf, { type: 'array', cellFormula: true, cellDates: false });
-    const out = {};
-    for (const name of wb.SheetNames) {
-      const mm = name.trim().toUpperCase().match(/^([A-Z]{3})\s*(\d{2})$/);
-      if (!mm) continue;
-      const mi = MONTHS.indexOf(mm[1].toLowerCase());
-      if (mi < 0) continue;
-      const ws = wb.Sheets[name];
-      const txt = (a) => {
-        const c = ws[a];
-        if (!c || c.v == null || c.t === 'b') return '';
-        return String(c.v).replace(/[\uFFFC\u200B\u00A0]/g, ' ').replace(/\s+/g, ' ').trim();
-      };
-      if (!/E\s*X\s*P\s*E\s*N\s*S\s*E/i.test(txt('K21'))) continue; // not the dashboard layout
-      const num = (a) => { const c = ws[a]; return c && typeof c.v === 'number' ? Math.round(c.v * 1000) : 0; };
-      const amounts = (a) => {
-        const c = ws[a];
-        if (!c) return [];
-        const f = c.f ? String(c.f).replace(/^=/, '').replace(/\s+/g, '') : '';
-        if (f && /^[-+]?\d*\.?\d+([-+]\d*\.?\d+)*$/.test(f)) {
-          return (f.match(/[-+]?\d*\.?\d+/g) || []).map(Number).filter(n => n && isFinite(n)).map(n => Math.round(n * 1000));
-        }
-        return typeof c.v === 'number' && c.v !== 0 ? [Math.round(c.v * 1000)] : [];
-      };
-      const date = (a) => {
-        const c = ws[a];
-        if (!c || typeof c.v !== 'number') return null;
-        const d = new Date(Math.round((c.v - 25569) * 86400000));
-        return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
-      };
-      const key = monthKey(2000 + Number(mm[2]), mi);
-      const m = newMonth(key);
-      const s = date('D7'), e = date('H7');
-      if (s && e && s <= e && (s.slice(0, 7) === key || e.slice(0, 7) === key)) { m.start = s; m.end = e; }
-      m.rollover = { planned: num('E13'), actual: num('I13') };
-      const rows = (nameCol, planCol, actCol, from, to, checkCol) => {
-        const list = [];
-        let unnamed = 0;
-        for (let r = from; r <= to; r++) {
-          let n = txt(nameCol + r);
-          const amts = amounts(actCol + r), planned = num(planCol + r);
-          if (!n && !amts.length && !planned) continue;
-          if (!n) n = ++unnamed === 1 ? 'Unnamed' : `Unnamed ${unnamed}`; // an amount with no label still counts
-          list.push({
-            id: uid(), name: n, planned,
-            entries: amts.map(amt => ({ id: uid(), amt, note: 'From sheet', at: null })),
-            paid: !!(checkCol && ws[checkCol + r] && ws[checkCol + r].v === true),
-          });
-        }
-        return list;
-      };
-      m.items.income = rows('B', 'E', 'I', 24, 53);
-      m.items.expenses = rows('K', 'M', 'O', 24, 53);
-      m.items.bills = rows('S', 'W', 'Y', 24, 53, 'R');
-      m.items.savings = rows('AD', 'AG', 'AI', 24, 35);
-      m.items.debt = rows('AE', 'AG', 'AI', 41, 53, 'AD');
-      out[key] = m;
+  /* ---------- Budget: export a month (or all months) as a backup sheet ---------- */
+  // A plain spreadsheet you can open anywhere: overview, every item, the amounts you added
+  // by hand, and the card purchases that were counted. It's a copy for safekeeping.
+  const SHORT_MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  const tabTitle = (k) => { const [y, m] = keyParts(k); return `${SHORT_MONTHS[m - 1]} ${String(y).slice(-2)}`; };
+  const niceDate = (t) => new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  const omr = (b) => b / 1000;
+  const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+  function monthRows(k) {
+    const m = budget.months[k], T = totals(m);
+    const rows = [
+      [monthLabel(k)],
+      ['Budget period', `${niceDate(dayStart(m.start))} to ${niceDate(dayStart(m.end))}`],
+      ['Exported', niceDate(Date.now())],
+      [],
+      ['OVERVIEW', null, 'Planned', 'Actual'],
+      ['Rollover', null, omr(m.rollover.planned), omr(m.rollover.actual)],
+      ['Income', null, omr(T.income.planned), omr(T.income.actual)],
+      ...OUT.map(s => [SEC[s].title, null, omr(T[s].planned), omr(T[s].actual)]),
+      ['Left', null, omr(T.left.planned), omr(T.left.actual)],
+      [],
+      ['ITEMS'],
+      ['Section', 'Item', 'Planned', 'Actual', 'Paid'],
+    ];
+    SECTIONS.forEach((sec, i) => {
+      for (const it of m.items[sec.id]) {
+        rows.push([sec.title, it.name, omr(it.planned), omr(itemActual(sec.id, it, T.rows)), sec.check ? (it.paid ? 'Yes' : 'No') : null]);
+      }
+      if (sec.id === 'expenses' && T.uncat > 0) rows.push([sec.title, 'Card, no category', null, omr(T.uncat), null]);
+      rows.push([sec.title, 'Total', omr(T[sec.id].planned), omr(T[sec.id].actual), null]);
+      if (i < SECTIONS.length - 1) rows.push([]);
+    });
+
+    const entries = [];
+    for (const sec of SECTIONS) for (const it of m.items[sec.id]) for (const e of it.entries) {
+      entries.push([sec.title, it.name, omr(e.amt), e.note || null, e.at ? niceDate(e.at) : null]);
     }
-    return out;
+    if (entries.length) rows.push([], ['AMOUNTS ADDED BY HAND'], ['Section', 'Item', 'Amount', 'Note', 'Date'], ...entries);
+
+    if (T.rows.length) {
+      rows.push([], ['CARD PURCHASES'], ['Date', 'Merchant', 'Amount (OMR)', 'Category', 'Original amount']);
+      for (const r of T.rows.slice().sort((a, b) => a.t.at - b.t.at)) {
+        rows.push([
+          niceDate(r.t.at), r.t.note || 'Card payment', omr(r.amount),
+          r.t.cat && findItem(m, r.t.cat) ? catName(r.t.cat) : 'No category',
+          r.t.orig && r.t.orig.cur !== 'OMR' ? `${r.t.orig.value} ${r.t.orig.cur}` : null,
+        ]);
+      }
+    }
+    return rows;
   }
 
-  function startImport() {
-    loadXlsx().catch(() => {}); // start fetching the reader while you pick the file
-    $('xlsxFile').click();
-  }
-  $('setImport').addEventListener('click', () => { settings.close(); startImport(); });
-
-  $('xlsxFile').addEventListener('change', async () => {
-    const file = $('xlsxFile').files[0];
-    $('xlsxFile').value = '';
-    if (!file) return;
-    let X;
-    try { X = await loadXlsx(); }
-    catch (e) { toast("Couldn't load the spreadsheet reader. Check your internet and try again."); return; }
-    let months;
-    try { months = parseWorkbook(X, await file.arrayBuffer()); }
-    catch (e) { toast("Couldn't read that file. Use the .xlsx download of your sheet."); return; }
-    const keys = Object.keys(months).sort();
-    if (!keys.length) { toast('No month tabs like "OCT 26" found in that file.'); return; }
-    const clash = keys.filter(k => budget.months[k]).length;
-    const range = keys.length === 1 ? monthLabel(keys[0]) : `${monthLabel(keys[0])} to ${monthLabel(keys[keys.length - 1])}`;
-    const msg = `Import ${keys.length} month${keys.length === 1 ? '' : 's'} (${range})?` +
-      (clash ? ` ${clash} month${clash === 1 ? '' : 's'} already in Spendr will be replaced.` : '');
-    if (!confirm(msg)) return;
-    for (const k of keys) budget.months[k] = months[k];
-    if (!budget.defaultCat) {
-      const latest = months[keys[keys.length - 1]];
-      const go = latest.items.expenses.find(it => /going out/i.test(it.name));
-      if (go) budget.defaultCat = `expenses|${go.name}`;
+  function budgetXlsx(X, keys) {
+    const wb = X.utils.book_new();
+    for (const k of keys) {
+      const ws = X.utils.aoa_to_sheet(monthRows(k));
+      ws['!cols'] = [20, 28, 14, 24, 16].map(wch => ({ wch }));
+      for (const addr of Object.keys(ws)) if (addr[0] !== '!' && ws[addr].t === 'n') ws[addr].z = '#,##0.000';
+      X.utils.book_append_sheet(wb, ws, tabTitle(k));
     }
-    saveBudget();
-    viewMonth = null;
-    render();
-    setTab('budget');
-    window.scrollTo({ top: 0 });
-    toast(`Imported ${keys.length} month${keys.length === 1 ? '' : 's'}`);
+    return new Blob([X.write(wb, { bookType: 'xlsx', type: 'array' })], { type: XLSX_MIME });
+  }
+
+  // No internet to load the Excel writer? Fall back to a CSV that opens in Numbers or Excel.
+  function budgetCsv(keys) {
+    const cell = (v) => v == null ? '' : typeof v === 'number' ? String(Math.round(v * 1000) / 1000) : `"${String(v).replace(/"/g, '""')}"`;
+    const blocks = keys.map(k => monthRows(k).map(r => r.map(cell).join(',')).join('\r\n'));
+    return new Blob(['\ufeff' + blocks.join('\r\n\r\n\r\n')], { type: 'text/csv' });
+  }
+
+  const budgetExportSheet = $('budgetExportSheet');
+
+  function updateBudgetExportPreview() {
+    const v = $('bxMonth').value, p = $('bxPreview');
+    if (v === 'all') { p.textContent = `${sortedKeys().length} months, one tab each`; return; }
+    const m = budget.months[v];
+    if (!m) { p.textContent = ''; return; }
+    const items = SECTIONS.reduce((x, s) => x + m.items[s.id].length, 0);
+    p.innerHTML = `${items} items, left <strong>${fmtS(totals(m).left.actual)} OMR</strong>`;
+  }
+
+  function openBudgetExport() {
+    const keys = sortedKeys();
+    if (!keys.length) { toast('Nothing to export yet. Add a month first.'); return; }
+    loadXlsx().catch(() => {});
+    const opts = keys.slice().reverse().map(k => `<option value="${k}">${monthLabel(k)}</option>`);
+    if (keys.length > 1) opts.push('<option value="all">All months (one tab each)</option>');
+    $('bxMonth').innerHTML = opts.join('');
+    $('bxMonth').value = budget.months[viewMonth] ? viewMonth : keys[keys.length - 1];
+    updateBudgetExportPreview();
+    budgetExportSheet.showModal();
+  }
+  $('bxMonth').addEventListener('change', updateBudgetExportPreview);
+
+  $('bxGo').addEventListener('click', async () => {
+    const v = $('bxMonth').value;
+    const keys = v === 'all' ? sortedKeys().reverse() : [v];
+    if (!keys.length || !keys.every(k => budget.months[k])) return;
+    try { await loadXlsx(); } catch (e) { /* offline: CSV below */ }
+    const useXlsx = !!window.XLSX;
+    const blob = useXlsx ? budgetXlsx(window.XLSX, keys) : budgetCsv(keys);
+    const base = v === 'all' ? `Spendr budget all months ${dayKey(Date.now())}` : `Spendr budget ${v}`;
+    const done = await deliver(blob, `${base}.${useXlsx ? 'xlsx' : 'csv'}`);
+    if (done) {
+      budgetExportSheet.close();
+      toast(v === 'all' ? `Exported ${keys.length} months` : `Exported ${monthLabel(v)}`);
+    }
   });
 
   /* ---------- Sheet dismissal ---------- */
